@@ -135,8 +135,9 @@ Choose **Window → Focus Mode** (⇧⌘F) to hide the header and fill the avail
 without entering macOS full screen. The phone keeps its proportions, with a small resize
 margin. Toggle it again to restore the previous window. Hold ⌥⌘ and drag to move the
 window; device controls remain in the menus and their usual keyboard shortcuts work.
-Hide device bezels separately with ⌘B for more screen space. Focus Mode is per window
-and is not saved across launches. Fixed scale presets resume after leaving Focus Mode.
+Hide device bezels separately with ⌘B for more screen space. Focus Mode is remembered per simulator across launches, together with its normal
+window frame. Toggle it off to restore that frame. Focus Mode uses fit sizing; leave
+it before choosing a fixed scale preset.
 
 ## Current limitations
 - **The windows are invisible to accessibility**: VoiceOver, window managers and scripting tools see

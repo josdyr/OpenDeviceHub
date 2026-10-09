@@ -78,6 +78,7 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
         presentationView.isFocused = focused
         if focused {
             frameBeforeFocus = window.frame
+            frameStore.save(uprightFrame(of: window), for: frameKey)
             styleBeforeFocus = window.styleMask
             toolbarBeforeFocus = window.toolbar
             window.toolbar = nil
@@ -94,6 +95,7 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
             frameBeforeFocus = nil
             styleBeforeFocus = nil
         }
+        frameStore.setFocused(focused, for: frameKey)
         window.makeKeyAndOrderFront(nil)
         presentationView.needsLayout = true
     }
@@ -724,6 +726,9 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
         // A unified toolbar makes the title bar taller, which would otherwise come out of the
         // device's own height, so the window is sized again now that it is there.
         applyScaleMode(scaleMode)
+        // Restore after toolbar installation and normal window placement, so leaving Focus Mode
+        // has a complete toolbar and a normal frame to return to.
+        if frameStore.isFocused(for: frameKey) { setFocused(true) }
     }
 
     /// Offers a finished recording for dragging out of the window.

@@ -5,6 +5,8 @@ under it until the next heading becomes that version's release notes in the upda
 
 ## Unreleased
 
+- Remember Focus Mode per simulator across launches while preserving the normal window frame.
+
 - Window → Focus Mode (⇧⌘F) hides the header and fits the device into the desktop,
   without entering full screen. Toggle it off to restore the previous window; ⌥⌘-drag
   moves the focused window. Menus, device shortcuts and the separate bezel toggle remain available.

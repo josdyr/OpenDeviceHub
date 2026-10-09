@@ -103,6 +103,28 @@ final class WindowFrameStoreTests: XCTestCase {
         WindowFrameStore(storage: InMemoryFrameStorage(), prefix: "t.")
     }
 
+    func testFocusAndNormalFrameSurviveRelaunchIndependentlyPerDevice() {
+        let storage = InMemoryFrameStorage()
+        let store = WindowFrameStore(storage: storage, prefix: "t.")
+        let normal = CGRect(x: 20, y: 30, width: 400, height: 600)
+        store.save(normal, for: "A")
+        store.setFocused(true, for: "A")
+        let restored = WindowFrameStore(storage: storage, prefix: "t.")
+        XCTAssertTrue(restored.isFocused(for: "A"))
+        XCTAssertFalse(restored.isFocused(for: "B"))
+        XCTAssertEqual(restored.frame(for: "A"), normal)
+        XCTAssertEqual(restored.rememberedCount, 1)
+        restored.setFocused(false, for: "A")
+        XCTAssertFalse(store.isFocused(for: "A"))
+        XCTAssertEqual(store.frame(for: "A"), normal)
+        store.setFocused(true, for: "A")
+        store.forget("A")
+        XCTAssertFalse(store.isFocused(for: "A"))
+        store.setFocused(true, for: "B")
+        store.forgetAll()
+        XCTAssertFalse(store.isFocused(for: "B"))
+    }
+
     func testItCountsWhatItRemembers() {
         let store = makeStore()
         XCTAssertEqual(store.rememberedCount, 0)

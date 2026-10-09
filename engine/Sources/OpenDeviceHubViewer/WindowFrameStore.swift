@@ -73,13 +73,24 @@ public struct WindowFrameStore: Sendable {
         storage.setText(WindowFrameCodec.encode(frame), forKey: prefix + udid)
     }
 
+    public func isFocused(for udid: String) -> Bool {
+        storage.text(forKey: prefix + "focus." + udid) == "true"
+    }
+
+    public func setFocused(_ focused: Bool, for udid: String) {
+        let key = prefix + "focus." + udid
+        if focused { storage.setText("true", forKey: key) }
+        else { storage.removeText(forKey: key) }
+    }
+
     public func forget(_ udid: String) {
+        setFocused(false, for: udid)
         storage.removeText(forKey: prefix + udid)
     }
 
     /// How many windows would reopen where they were left.
     public var rememberedCount: Int {
-        storage.keys(withPrefix: prefix).count
+        storage.keys(withPrefix: prefix).filter { !$0.hasPrefix(prefix + "focus.") }.count
     }
 
     public func forgetAll() {
