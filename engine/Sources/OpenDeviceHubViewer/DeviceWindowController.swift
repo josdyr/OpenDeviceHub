@@ -71,7 +71,7 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
     private var toolbarBeforeFocus: NSToolbar?
 
     /// A reversible, ordinary desktop window with no header and only its resize margin.
-    public func setFocused(_ focused: Bool) {
+    public func setFocused(_ focused: Bool, activate: Bool = true) {
         guard let window, focused != isFocused,
               !window.styleMask.contains(.fullScreen) else { return }
         isFocused = focused
@@ -95,8 +95,7 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
             frameBeforeFocus = nil
             styleBeforeFocus = nil
         }
-        frameStore.setFocused(focused, for: frameKey)
-        window.makeKeyAndOrderFront(nil)
+        if activate { window.makeKeyAndOrderFront(nil) }
         presentationView.needsLayout = true
     }
 
@@ -728,7 +727,7 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
         applyScaleMode(scaleMode)
         // Restore after toolbar installation and normal window placement, so leaving Focus Mode
         // has a complete toolbar and a normal frame to return to.
-        if frameStore.isFocused(for: frameKey) { setFocused(true) }
+        if frameStore.isFocused { setFocused(true) }
     }
 
     /// Offers a finished recording for dragging out of the window.
@@ -775,6 +774,7 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
         (window as? DeviceWindow)?.constrainsToScreen = false
         presentationView.setFullScreen(false)
         toolbar?.setFoldModes(visible: false)
+        setFocused(frameStore.isFocused, activate: false)
         // The device may have been turned while full screen, where the window is not resized, so
         // the shape it comes back to is whatever the current orientation asks for.
         applyScaleMode(scaleMode)

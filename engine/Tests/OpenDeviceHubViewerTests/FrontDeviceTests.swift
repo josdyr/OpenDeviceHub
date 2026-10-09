@@ -42,6 +42,35 @@ final class FrontDeviceTests: XCTestCase {
         XCTAssertEqual(manager.frontmostUDID, "second")
     }
 
+    func testFocusToggleUpdatesAllWindowsAndNewDevicesFollowIt() throws {
+        func installToolbar(_ controller: DeviceWindowController) {
+            controller.setToolbarActions(DeviceToolbarActions(
+                goHome: {}, saveScreenshot: {}, stopRecording: {}, rotate: { _ in }
+            ))
+        }
+        let first = try open("first")
+        let second = try open("second")
+        installToolbar(first)
+        installToolbar(second)
+        let firstFrame = try XCTUnwrap(first.window).frame
+        let secondFrame = try XCTUnwrap(second.window).frame
+        manager.toggleFocusMode()
+        XCTAssertTrue(manager.isFocused)
+        XCTAssertTrue(first.isFocused)
+        XCTAssertTrue(second.isFocused)
+        let third = try open("third")
+        installToolbar(third)
+        XCTAssertTrue(third.isFocused, "new devices must follow the shared preference")
+        manager.toggleFocusMode()
+        XCTAssertFalse(first.isFocused)
+        XCTAssertFalse(second.isFocused)
+        XCTAssertFalse(third.isFocused)
+        XCTAssertEqual(first.window?.frame, firstFrame)
+        XCTAssertEqual(second.window?.frame, secondFrame)
+        XCTAssertNotNil(first.window?.toolbar)
+        XCTAssertNotNil(second.window?.toolbar)
+    }
+
     private func open(_ udid: String) throws -> DeviceWindowController {
         try manager.open(
             device: DeviceInfo(

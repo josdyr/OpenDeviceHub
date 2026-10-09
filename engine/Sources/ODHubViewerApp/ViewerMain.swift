@@ -257,8 +257,7 @@ struct ODHubViewer: ParsableCommand {
                     target.controller.setKeepOnTop(!target.controller.isKeptOnTop)
                 },
                 toggleFocusMode: {
-                    guard let target = front() else { return }
-                    target.controller.setFocused(!target.controller.isFocused)
+                    manager.toggleFocusMode()
                 },
                 pasteToDevice: {
                     guard let target = front(),
@@ -526,7 +525,7 @@ struct ODHubViewer: ParsableCommand {
                     case .latencyOverlay: return controller.isLatencyOverlayVisible
                     case .bezel: return controller.isBezelEnabled
                     case .keepOnTop: return controller.isKeptOnTop
-                    case .focusMode: return controller.isFocused
+                    case .focusMode: return manager.isFocused
                     case .increasedContrast:
                         if let known = controller.increasesContrast { return known }
                         let read = SimctlService().increasesContrast(udid: target.udid)

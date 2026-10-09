@@ -30,6 +30,18 @@ public final class DeviceWindowManager {
 
     public var openCount: Int { controllers.count }
 
+    public var isFocused: Bool { frameStore.isFocused }
+
+    public func toggleFocusMode() {
+        let focused = !isFocused
+        frameStore.setFocused(focused)
+        let front = NSApp.keyWindow
+        for controller in controllers.values {
+            controller.setFocused(focused, activate: false)
+        }
+        front?.makeKey()
+    }
+
     /// Current screenshot preference, read by per-window toolbar actions at invocation time.
     public var savesScreenshotsToClipboard: Bool { settings.savesScreenshotsToClipboard }
 

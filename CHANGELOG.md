@@ -5,7 +5,9 @@ under it until the next heading becomes that version's release notes in the upda
 
 ## Unreleased
 
-- Remember Focus Mode per simulator across launches while preserving the normal window frame.
+- Remember Focus Mode globally across launches and apply toggles to all open simulators.
+  New devices follow the shared preference; normal window frames remain per device.
+  Previously enabled per-device focus preferences migrate automatically.
 
 - Window → Focus Mode (⇧⌘F) hides the header and fits the device into the desktop,
   without entering full screen. Toggle it off to restore the previous window; ⌥⌘-drag

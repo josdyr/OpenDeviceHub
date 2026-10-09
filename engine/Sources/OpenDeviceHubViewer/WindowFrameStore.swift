@@ -73,18 +73,26 @@ public struct WindowFrameStore: Sendable {
         storage.setText(WindowFrameCodec.encode(frame), forKey: prefix + udid)
     }
 
-    public func isFocused(for udid: String) -> Bool {
-        storage.text(forKey: prefix + "focus." + udid) == "true"
+    /// Shared across devices. Migrate an enabled legacy device preference once.
+    public var isFocused: Bool {
+        let key = prefix + "focus.enabled"
+        if let saved = storage.text(forKey: key) { return saved == "true" }
+        let enabled = storage.keys(withPrefix: prefix + "focus.").contains {
+            storage.text(forKey: $0) == "true"
+        }
+        setFocused(enabled)
+        return enabled
     }
 
-    public func setFocused(_ focused: Bool, for udid: String) {
-        let key = prefix + "focus." + udid
-        if focused { storage.setText("true", forKey: key) }
-        else { storage.removeText(forKey: key) }
+    public func setFocused(_ focused: Bool) {
+        for key in storage.keys(withPrefix: prefix + "focus.") {
+            storage.removeText(forKey: key)
+        }
+        storage.setText(focused ? "true" : "false", forKey: prefix + "focus.enabled")
     }
 
     public func forget(_ udid: String) {
-        setFocused(false, for: udid)
+        storage.removeText(forKey: prefix + "focus." + udid)
         storage.removeText(forKey: prefix + udid)
     }
 
@@ -94,7 +102,7 @@ public struct WindowFrameStore: Sendable {
     }
 
     public func forgetAll() {
-        for key in storage.keys(withPrefix: prefix) {
+        for key in storage.keys(withPrefix: prefix) where !key.hasPrefix(prefix + "focus.") {
             storage.removeText(forKey: key)
         }
     }
