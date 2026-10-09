@@ -256,6 +256,10 @@ struct ODHubViewer: ParsableCommand {
                     guard let target = front() else { return }
                     target.controller.setKeepOnTop(!target.controller.isKeptOnTop)
                 },
+                toggleFocusMode: {
+                    guard let target = front() else { return }
+                    target.controller.setFocused(!target.controller.isFocused)
+                },
                 pasteToDevice: {
                     guard let target = front(),
                           let text = NSPasteboard.general.string(forType: .string) else { return }
@@ -522,6 +526,7 @@ struct ODHubViewer: ParsableCommand {
                     case .latencyOverlay: return controller.isLatencyOverlayVisible
                     case .bezel: return controller.isBezelEnabled
                     case .keepOnTop: return controller.isKeptOnTop
+                    case .focusMode: return controller.isFocused
                     case .increasedContrast:
                         if let known = controller.increasesContrast { return known }
                         let read = SimctlService().increasesContrast(udid: target.udid)

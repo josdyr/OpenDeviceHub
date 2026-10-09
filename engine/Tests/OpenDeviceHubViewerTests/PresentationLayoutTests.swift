@@ -2,6 +2,17 @@ import XCTest
 @testable import OpenDeviceHubViewer
 
 final class PresentationLayoutTests: XCTestCase {
+    func testFocusModeReclaimsHeaderAndMarginsWhileKeepingResizeEdges() {
+        let size = CGSize(width: 1024, height: 644)
+        let normal = PresentationLayout(contentSize: size)
+        let focused = PresentationLayout(contentSize: size, isFocused: true)
+        XCTAssertEqual(focused.bar, .zero)
+        XCTAssertEqual(focused.device, CGRect(x: 5, y: 5, width: 1014, height: 634))
+        XCTAssertGreaterThan(focused.device.height, normal.device.height)
+        let tiny = PresentationLayout(contentSize: CGSize(width: 2, height: 2), isFocused: true)
+        XCTAssertEqual(tiny.device.size, .zero)
+    }
+
     private let device = CGSize(width: 402, height: 874)
 
     func testTheBarFloatsInsetFromEveryEdgeItTouches() {

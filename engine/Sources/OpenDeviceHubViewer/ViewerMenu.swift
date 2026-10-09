@@ -32,12 +32,14 @@ public enum ViewerMenu {
         case latencyOverlay
         case bezel
         case keepOnTop
+        case focusMode
     }
 
     public struct Actions {
         public var setScaleMode: (ScaleMode) -> Void
         public var toggleBezel: () -> Void
         public var toggleKeepOnTop: () -> Void
+        public var toggleFocusMode: () -> Void
         public var pasteToDevice: () -> Void
         public var toggleAppearance: () -> Void
         public var saveScreenshot: () -> Void
@@ -88,6 +90,7 @@ public enum ViewerMenu {
             setScaleMode: @escaping (ScaleMode) -> Void,
             toggleBezel: @escaping () -> Void,
             toggleKeepOnTop: @escaping () -> Void,
+            toggleFocusMode: @escaping () -> Void = {},
             pasteToDevice: @escaping () -> Void,
             toggleAppearance: @escaping () -> Void,
             saveScreenshot: @escaping () -> Void,
@@ -134,6 +137,7 @@ public enum ViewerMenu {
             self.setScaleMode = setScaleMode
             self.toggleBezel = toggleBezel
             self.toggleKeepOnTop = toggleKeepOnTop
+            self.toggleFocusMode = toggleFocusMode
             self.pasteToDevice = pasteToDevice
             self.toggleAppearance = toggleAppearance
             self.saveScreenshot = saveScreenshot
@@ -457,6 +461,9 @@ public enum ViewerMenu {
         windowMenu.addItem(.separator())
         windowMenu.addItem(withTitle: "Enter Full Screen", action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f")
             .keyEquivalentModifierMask = [.control, .command]
+        let focus = target.item("Focus Mode", #selector(MenuTarget.focusMode), "f", [.command, .shift])
+        target.track(focus, as: .focusMode)
+        windowMenu.addItem(focus)
         let bezel = target.item("Show Device Bezels", #selector(MenuTarget.bezel), "b", [])
         target.track(bezel, as: .bezel)
         windowMenu.addItem(bezel)
@@ -689,6 +696,7 @@ public final class MenuTarget: NSObject, NSMenuDelegate, NSMenuItemValidation {
         ])
     }
 
+    @objc func focusMode() { actions.toggleFocusMode() }
     @objc func bezel() { actions.toggleBezel() }
     @objc func keepOnTop() { actions.toggleKeepOnTop() }
     @objc func saveScreenshot() { actions.saveScreenshot() }

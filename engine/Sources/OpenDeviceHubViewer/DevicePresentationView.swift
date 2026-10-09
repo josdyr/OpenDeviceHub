@@ -10,6 +10,9 @@ public final class DevicePresentationView: NSView {
     public let model: DuoModelView?
 
     private var isFullScreen = false
+    public var isFocused = false {
+        didSet { bar.isHidden = isFocused; needsLayout = true }
+    }
 
     public init(bar: DeviceControlBar, chrome: DeviceChromeView, model: DuoModelView? = nil) {
         self.bar = bar
@@ -37,7 +40,7 @@ public final class DevicePresentationView: NSView {
     }
 
     public var currentLayout: PresentationLayout {
-        PresentationLayout(contentSize: bounds.size, isFullScreen: isFullScreen)
+        PresentationLayout(contentSize: bounds.size, isFullScreen: isFullScreen, isFocused: isFocused)
     }
 
     /// The content covers the whole window, including the few points AppKit keeps at the edges for

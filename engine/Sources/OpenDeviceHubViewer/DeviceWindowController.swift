@@ -65,6 +65,39 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
     private var parallelOffset = CGSize(width: 0.12, height: 0)
     private var dragEdge: TouchEvent.Edge = .none
     private var orientation: DeviceOrientation = .portrait
+    public private(set) var isFocused = false
+    private var frameBeforeFocus: CGRect?
+    private var styleBeforeFocus: NSWindow.StyleMask?
+    private var toolbarBeforeFocus: NSToolbar?
+
+    /// A reversible, ordinary desktop window with no header and only its resize margin.
+    public func setFocused(_ focused: Bool) {
+        guard let window, focused != isFocused,
+              !window.styleMask.contains(.fullScreen) else { return }
+        isFocused = focused
+        presentationView.isFocused = focused
+        if focused {
+            frameBeforeFocus = window.frame
+            styleBeforeFocus = window.styleMask
+            toolbarBeforeFocus = window.toolbar
+            window.toolbar = nil
+            window.styleMask = [.borderless, .resizable, .miniaturizable]
+            window.contentResizeIncrements = NSSize(width: 1, height: 1)
+            if let visible = (window.screen ?? NSScreen.main)?.visibleFrame {
+                window.setFrame(visible, display: true)
+            }
+        } else {
+            if let styleBeforeFocus { window.styleMask = styleBeforeFocus }
+            window.toolbar = toolbarBeforeFocus
+            toolbarBeforeFocus = nil
+            if let frameBeforeFocus { window.setFrame(frameBeforeFocus, display: true) }
+            frameBeforeFocus = nil
+            styleBeforeFocus = nil
+        }
+        window.makeKeyAndOrderFront(nil)
+        presentationView.needsLayout = true
+    }
+
     private var scaleMode: ScaleMode
     private let deviceName: String
     private var pendingSend: Task<Void, Never>?
@@ -352,6 +385,7 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
     @discardableResult
     public func applyScaleMode(_ mode: ScaleMode) -> ScaleApplication {
         scaleMode = mode
+        if isFocused { presentationView.needsLayout = true; return .noFixedSize }
         guard let window else { return .unavailable }
         let device = DeviceMetrics(
             pixelSize: session.pixelSize,
@@ -626,7 +660,7 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
     /// Fit mode has no size of its own, so a sideways turn reshapes the window itself, keeping the
     /// device at the size it is drawn. A foldable's viewport is never reshaped.
     private func reshape(from previous: DeviceOrientation) {
-        guard scaleMode == .fit, modelView == nil, let window,
+        guard !isFocused, scaleMode == .fit, modelView == nil, let window,
               !window.styleMask.contains(.fullScreen) else { return }
         let content = PresentationLayout.contentSizeTurned(
             from: window.contentRect(forFrameRect: window.frame).size,
@@ -698,7 +732,7 @@ public final class DeviceWindowController: NSWindowController, NSWindowDelegate 
     }
 
     public func rememberFrame() {
-        guard tracksFrameChanges,
+        guard !isFocused, tracksFrameChanges,
               let window,
               !window.styleMask.contains(.fullScreen) else { return }
         frameStore.save(uprightFrame(of: window), for: frameKey)

@@ -14,7 +14,16 @@ final class DeviceWindow: NSWindow {
 
     /// A drag that starts on one of the device's corners resizes the window, keeping the device's
     /// shape. AppKit's own edge resize still works; this is the handle that is easy to hit.
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+
     override func sendEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown,
+           event.modifierFlags.contains([.command, .option]),
+           (contentView as? DevicePresentationView)?.isFocused == true {
+            performDrag(with: event)
+            return
+        }
         if resize != nil {
             switch event.type {
             case .leftMouseDragged:

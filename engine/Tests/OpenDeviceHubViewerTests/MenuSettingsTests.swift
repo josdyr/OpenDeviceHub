@@ -7,6 +7,22 @@ import OpenDeviceHubEngine
 final class MenuSettingsTests: XCTestCase {
     private var previousMenu: NSMenu?
 
+    func testFocusModeCanBeFoundAndItsCheckmarkFollowsTheFrontDevice() throws {
+        var focused = false
+        var harness = MenuHarness()
+        harness.isOn = { $0 == .focusMode && focused }
+        let target = harness.install()
+        let (item, _) = try XCTUnwrap(MenuHarness.item(titled: "Focus Mode"))
+        XCTAssertTrue(target.validateMenuItem(item))
+        XCTAssertEqual(item.state, .off)
+        XCTAssertEqual(item.keyEquivalent, "f")
+        XCTAssertEqual(item.keyEquivalentModifierMask, [.command, .shift])
+        focused = true
+        XCTAssertTrue(target.validateMenuItem(item))
+        XCTAssertEqual(item.state, .on)
+    }
+
+
     override func setUp() async throws {
         previousMenu = NSApplication.shared.mainMenu
     }
@@ -78,6 +94,7 @@ final class MenuSettingsTests: XCTestCase {
             .latencyOverlay: "Show Click to Frame Latency",
             .bezel: "Show Device Bezels",
             .keepOnTop: "Stay On Top",
+            .focusMode: "Focus Mode",
         ]
         XCTAssertEqual(Set(titles.keys), Set(ViewerMenu.DeviceSetting.allCases))
         var inFront: Set<ViewerMenu.DeviceSetting> = []

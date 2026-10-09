@@ -49,9 +49,18 @@ public struct PresentationLayout: Equatable {
 
     /// Full screen hands the window to AppKit, which puts its own chrome at the top, so the bar
     /// squares off and the device takes the rest.
-    public init(contentSize: CGSize, isFullScreen: Bool = false) {
+    public init(contentSize: CGSize, isFullScreen: Bool = false, isFocused: Bool = false) {
         let width = max(contentSize.width, 0)
         let height = max(contentSize.height, 0)
+        if isFocused {
+            bar = .zero
+            cornerRadius = 0
+            let border = Self.resizeBorder
+            device = CGRect(x: border, y: border,
+                            width: max(width - border * 2, 0),
+                            height: max(height - border * 2, 0))
+            return
+        }
         bar = CGRect(
             x: 0,
             y: max(height - Self.barHeight, 0),

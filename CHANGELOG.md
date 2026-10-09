@@ -3,6 +3,12 @@
 The appcast generator reads this file. Each release is a `## <version>` heading, and everything
 under it until the next heading becomes that version's release notes in the update feed.
 
+## Unreleased
+
+- Window → Focus Mode (⇧⌘F) hides the header and fits the device into the desktop,
+  without entering full screen. Toggle it off to restore the previous window; ⌥⌘-drag
+  moves the focused window. Menus, device shortcuts and the separate bezel toggle remain available.
+
 ## 0.2.0
 
 - The camera control works on every iPhone that has one, not only the iPhone Duo, and Device,
